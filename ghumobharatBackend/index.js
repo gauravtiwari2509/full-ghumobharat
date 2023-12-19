@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const collection = require("./models/mongodbTouristSIgnin");
 const collection2 = require("./models/mongodbBusinessSignup");
+const collection3 = require("./models/mongodbBusinessConnect");
+const e_collection = require("./models/ecommschema");
 const cors = require("cors"); // Import the cors package
 
 app.use(express.json());
@@ -118,9 +120,9 @@ app.post("/businesslogin", async (req, resp) => {
     if (!user2) {
       return resp.status(404).json({ message: "User not found!" });
     }
-
+    
     const passwordMatch = user2.password;
-
+    
     if (password === passwordMatch) {
       // Send user details along with the success message
       return resp.status(200).json({
@@ -136,7 +138,56 @@ app.post("/businesslogin", async (req, resp) => {
   }
 });
 
+
+
+app.post("/businessconnect", async (req, resp) => {
+  const { businessName, email, phoneNo, address, businessType, taxID, password, businessDescription, additionalInfo } = req.body;
+
+  try {
+    const data = {
+      businessName,
+      email,
+      phoneNo,
+      address,
+      businessType,
+      taxID,
+      password,
+      businessDescription,
+      additionalInfo,
+    };
+
+    await collection3.insertOne(data); 
+    resp.json({ message: "Signup successful" }); 
+  } catch (error) {
+    resp.status(500).json({ error: "Internal server error" }); // Handle errors appropriately
+  }
+});
+
+
+app.post("/review", async (req, resp) => {
+
+
+  const { productQuality, customerService, cleanlinessAmbiance, valueForMoney, convenienceTimeliness, overallExperience, timeSpent } = req.body;
+
+  try {
+    const data = {
+      productQuality,
+      customerService,
+      cleanlinessAmbiance,
+      valueForMoney,
+      convenienceTimeliness,
+      overallExperience,
+      timeSpent
+
+    };
+
+    await e_collection.insertMany([data]);
+    resp.json({ message: "Reviewed successfully" });
+  } catch (error) {
+    resp.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.listen(5000, () => {
   console.log("Server connected on port 5000");
 });
-
